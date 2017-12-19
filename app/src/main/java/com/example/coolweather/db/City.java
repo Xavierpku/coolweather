@@ -20,11 +20,11 @@ public class City extends DataSupport {
         this.id = id;
     }
 
-    public String getCityname(){
+    public String getCityName(){
         return cityName;
     }
 
-    public void setCityname(String cityName){
+    public void setCityName(String cityName){
         this.cityName = cityName;
     }
 
