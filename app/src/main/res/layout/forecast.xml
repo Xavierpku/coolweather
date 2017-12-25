@@ -13,7 +13,18 @@
        android:layout_marginTop="15dp"
        android:text="预报"
        android:textColor="#fff"
-       android:textSize="20sp"/>
+       android:textSize="25sp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="10dp"
+        android:text="日期                            天气               最高温         最低温"
+        android:textColor="#fff"
+        android:textSize="15sp"/>
+
+
 
     <LinearLayout
         android:id="@+id/forecast_layout"

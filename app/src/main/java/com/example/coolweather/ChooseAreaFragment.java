@@ -1,9 +1,11 @@
 package com.example.coolweather;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -28,6 +30,7 @@ import org.litepal.crud.DataSupport;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.security.AccessController;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -76,15 +79,16 @@ public class ChooseAreaFragment extends Fragment {
     private int currentLevel;
 
 
-    @Nullable
+
+
     @Override
-    @SuppressLint("NewApi")
+
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.choose_area,container,false);
         titleText = (TextView)view.findViewById(R.id.title_text);
         backButton = (Button)view.findViewById(R.id.back_button);
         listView = (ListView)view.findViewById(R.id.list_view);
-        adapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1,dataList);
+        adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1,dataList);
         listView.setAdapter(adapter);
         return view;
     }
@@ -103,10 +107,18 @@ public class ChooseAreaFragment extends Fragment {
                     queryCounties();
                 }else if(currentLevel==LEVEL_COUNTY){
                     String weatherId = countyList.get(position).getWeatherId();
-                    Intent intent = new Intent(getActivity(), WeatherAcitivity.class);
-                    intent.putExtra("weather_id",weatherId);
-                    startActivity(intent);
-                    getActivity().finish();
+
+                    if(getActivity() instanceof MainActivity) {
+                        Intent intent = new Intent(getActivity(), WeatherAcitivity.class);
+                        intent.putExtra("weather_id", weatherId);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }else if(getActivity() instanceof WeatherAcitivity){
+                        WeatherAcitivity activity = (WeatherAcitivity)getActivity();
+                        activity.drawerLayout.closeDrawers();
+                        activity.swipeRefresh.setRefreshing(true);
+                        activity.requestWeather(weatherId);
+                    }
                 }
             }
         });
@@ -188,17 +200,18 @@ public class ChooseAreaFragment extends Fragment {
     /*
      *根据传入的地址和类型从服务器上查询省市县数据
      */
-    @SuppressLint("NewApi")
+
     private void queryFromServer(String address,final String type){
         showProgressDialog();
         HttpUtil.sendOkHttpRequest(address, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 getActivity().runOnUiThread(new Runnable() {
+                    @TargetApi(Build.VERSION_CODES.M)
                     @Override
                     public void run() {
                         closeProgressDialog();
-                        Toast.makeText(getContext(),"加载失败",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(),"加载失败",Toast.LENGTH_SHORT).show();
                     }
                 });
             }
